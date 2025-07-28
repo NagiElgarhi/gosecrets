@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { Page } from '../App';
 import { Bars3Icon, XMarkIcon, TempleIcon, KeyIcon } from './IconComponents';
@@ -17,12 +16,19 @@ export const Navbar: React.FC<NavbarProps> = ({ page, setPage }) => {
 
     const navLinks: { id: Page; titleKey: TranslationKey }[] = [
         { id: 'home', titleKey: 'nav_home' },
-        { id: 'services', titleKey: 'nav_services' },
+        { id: 'guide', titleKey: 'nav_interactive_guide' },
         { id: 'automation', titleKey: 'nav_automation' },
         { id: 'credentials', titleKey: 'nav_credentials' },
+        { id: 'services', titleKey: 'nav_services' },
         { id: 'about', titleKey: 'nav_about' },
         { id: 'contact', titleKey: 'nav_contact' },
-        { id: 'guide', titleKey: 'nav_interactive_guide' },
+    ];
+
+    const googleMobileColors = [
+        'bg-[var(--google-blue)]',
+        'bg-[var(--google-red)]',
+        'bg-[var(--google-yellow)]',
+        'bg-[var(--google-green)]',
     ];
 
     useEffect(() => {
@@ -102,43 +108,69 @@ export const Navbar: React.FC<NavbarProps> = ({ page, setPage }) => {
                 </div>
             </nav>
 
-            {/* Mobile Menu */}
-            {isOpen && (
-                <div className="md:hidden fixed inset-0 bg-black z-50 animate-fade-in-down">
-                    <div className="flex justify-between items-center p-4 border-b border-slate-800">
-                         <div className="flex items-center gap-2">
-                            <TempleIcon className="w-8 h-8" />
-                            <ColoredAppName />
-                        </div>
-                        <button onClick={() => setIsOpen(false)} className="p-2">
-                            <XMarkIcon className="w-7 h-7 text-slate-300" />
-                        </button>
+            {/* Mobile Menu Overlay */}
+            <div
+                className={`fixed inset-0 bg-black/60 z-40 md:hidden transition-opacity duration-300 ${
+                    isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={() => setIsOpen(false)}
+                aria-hidden="true"
+            ></div>
+
+            {/* Mobile Menu Panel */}
+            <div
+                className={`fixed top-0 bottom-0 z-50 w-full max-w-sm bg-slate-900/95 backdrop-blur-md shadow-2xl md:hidden flex flex-col transition-transform duration-300 ease-in-out ${
+                    language === 'ar' ? 'right-0' : 'left-0'
+                } ${
+                    isOpen
+                        ? 'translate-x-0'
+                        : (language === 'ar' ? 'translate-x-full' : '-translate-x-full')
+                }`}
+                role="dialog"
+                aria-modal="true"
+            >
+                {/* Panel Header */}
+                <div className="flex justify-between items-center p-4 border-b border-slate-700">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleLinkClick('home')}>
+                        <TempleIcon className="w-8 h-8" />
+                        <ColoredAppName />
                     </div>
-                    <div className="flex flex-col items-center justify-center h-[calc(100vh-81px)] gap-4">
-                        
-                        {navLinks.map(link => (
-                             <button
-                                key={link.id}
-                                onClick={() => handleLinkClick(link.id)}
-                                className={`text-2xl font-bold py-3 px-6 rounded-lg transition-colors w-4/5 ${
-                                    page === link.id
-                                        ? 'bg-[var(--google-blue)] text-white'
-                                        : 'text-slate-200 hover:bg-slate-800'
-                                }`}
-                            >
-                                {t(link.titleKey)}
-                            </button>
-                        ))}
-                         <button
-                            onClick={() => changeLanguage(language === 'ar' ? 'en' : 'ar')}
-                            aria-label="Change language"
-                            className="text-xl font-bold py-3 px-6 rounded-lg bg-slate-800 text-slate-200 w-4/5 mt-4"
-                        >
-                            {language === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
-                        </button>
-                    </div>
+                    <button onClick={() => setIsOpen(false)} className="p-2 rounded-full hover:bg-slate-800">
+                        <XMarkIcon className="w-7 h-7 text-slate-300" />
+                    </button>
                 </div>
-            )}
+
+                {/* Navigation Links */}
+                <nav className="p-4 flex-grow">
+                    <ul className="flex flex-col gap-3">
+                        {navLinks.map((link, index) => (
+                            <li key={link.id}>
+                                <button
+                                    onClick={() => handleLinkClick(link.id)}
+                                    className={`w-full text-lg font-bold py-4 px-4 rounded-xl transition-all duration-200 shadow-md hover:shadow-xl hover:-translate-y-1 ${language === 'ar' ? 'text-right' : 'text-left'} text-white ${googleMobileColors[index % googleMobileColors.length]} ${
+                                        page === link.id
+                                            ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900'
+                                            : ''
+                                    }`}
+                                >
+                                    {t(link.titleKey)}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+                
+                {/* Panel Footer */}
+                <div className="p-4 border-t border-slate-700">
+                    <button
+                        onClick={() => changeLanguage(language === 'ar' ? 'en' : 'ar')}
+                        aria-label="Change language"
+                        className="w-full text-lg font-bold py-3 px-4 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                    >
+                        {language === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
+                    </button>
+                </div>
+            </div>
         </header>
     );
 };
